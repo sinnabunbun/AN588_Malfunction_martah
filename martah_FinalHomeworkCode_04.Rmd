@@ -96,15 +96,17 @@ z.prop.test<- function(p1, n1, p2=NULL, n2=NULL, p0, alternative="t", conf.level
  if (is.null(p2)) { #i was trying to write two sided first but i can't figure out the how to command that without first defining one sided and then running else? #also this is just a cool thing, originally i had `if (p2 == NULL)` but r specifically switched it to `is.null`
    z <- (p1 - p0)/sqrt(p0 * (1 - p0)/n1) #z value
    p <- (1 - pnorm(z, lower.tail = TRUE) + pnorm(z, lower.tail = FALSE)) #p value
-     rot <- n1*p1
-     rotb <- 1*(1-p1)
-    if (rot|rotb < 5) {
-    warning("Uhhhhhh think again.") #is this an appropriate response
+     rot <- n1*p0
+     rotb <- n1*(1-p0)
+    if (rot< 5 | rotb < 5) {
+    (warning("Uhhhhhh think again.")) #is this an appropriate response
   }
-   lower <- p1 - qnorm(0.975) * sqrt(p1 * (1 - p1)/n1)
-  upper <- p1 + qnorm(0.975) * sqrt(p1 * (1 - p1)/n1)
+  alpha = 1 - (conf.level)
+  crit <- qnorm(1 - alpha/2)  # originally i didn't have an alpha or critical i just was substituting `crit` with the alpha value itself .975 my peer group worked together and changed this
+  upper <- p1 + (crit) * (sqrt((p1*(1-p1)/n1)))
+  lower <- p1 - (crit) * (sqrt((p1*(1-p1)/n1)))
   ci <- c(lower, upper)
-  one.prop.values <- list(z.test.statistic = as.numeric(z), p.value = as.numeric(p), confidence.intervals.as.defined.by.conf.level = as.numeric(ci))
+  one.prop.values <- list(z.test.statistic = as.numeric(z), p.value = as.numeric(p), confidence.intervals.as.defined.by.conf.level = as.numeric(ci)) #originally i was doing `return(list())` which i think would have worked if i did as.numeric but this looks better
 return(one.prop.values)
  }
 #TWO PROP TEST 
@@ -112,15 +114,17 @@ return(one.prop.values)
     pstar<- (p1 + p2)/(n1 + n2)
    z <- (p1 - p2)/sqrt((pstar * (1 - pstar)) * ((1/n1) + (1/n2))) #z value for 2
   p <- (1 - pnorm(z, lower.tail = T) + pnorm(z, lower.tail = F)) #p value same as before?
-      rot <- n1*p1
-     rotb <- 1*(1-p1)
-     rot_ <- n2*p2
-     rotb_ <- 1*(1-p2)
-  if (rot|rot_|rotb|rotb_ < 5) {
-    warning("Uhhhhhh think again.")
+      rot <- n1*p0
+     rotb <- n1*(1-p0)
+     rot_ <- n2*p0
+     rotb_ <- n2*(1-p0)
+  if (rot < 5 | rot_ < 5 | rotb < 5 | rotb_ < 5 ) {
+    (warning("Uhhhhhh think again."))
     }
-   upper <- (p1 - p2) + (z * sqrt((p1*(1-p1)/n1) + (p2 * (1-p2)/n2)))
-  lower <- (p1 - p2) - (z * sqrt((p1*(1-p1)/n1) + (p2 * (1-p2)/n2)))
+  alpha = 1 - (conf.level)
+  crit <- qnorm(1 - alpha/2)  # victoria solved the two prop ci problem!!
+  upper <- (p1 - p2) + (crit) * (sqrt((p1*(1-p1)/n1) + (p2 * (1-p2)/n2)))
+  lower <- (p1 - p2) - (crit) * (sqrt((p1*(1-p1)/n1) + (p2 * (1-p2)/n2)))
   ci <- c(lower, upper)
   two.prop.values <- list(z.test.statistic = as.numeric(z), p.value = as.numeric(p), confidence.intervals.as.defined.by.conf.level = as.numeric(ci))
 return(two.prop.values)
@@ -135,6 +139,7 @@ z.prop.test(p1 = .8, n1 = 5, p0 = .6) #this should have set off my warning :/
 z.prop.test(p1 = .6, n1 = 30, p0 = .8)
 z.prop.test(p1 = .56, n1 = 25, p2 = .7, n2 = 30, p0 = 0)
 ```
+Yes! Thank you Max and Victoria for all your help!
 
 ## Regression
 
@@ -145,7 +150,7 @@ z.prop.test(p1 = .56, n1 = 25, p2 = .7, n2 = 30, p0 = 0)
 library(curl)
 f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN588_Fall21/KamilarAndCooperData.csv")
 monkeys <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-monkeys <- na.omit(monkeys)
+monkeys <- na.omit(monkeys) #his was super helpful for calculating the regression
 head(monkeys)
 ```
 oooooo, ahhhhhh
@@ -158,7 +163,7 @@ summary(m)
 ci1 <- confint(m, level = 0.90)
 ci1
 ci2 <- predict(m, newdata = data.frame(Brain_Size_Species_Mean = monkeys$Brain_Size_Species_Mean), interval = "confidence",
-    level = 0.90)
+    level = 0.90) #max suggested this and the lines variable to make the ci and slope lines
 head(ci2)
 lines <- data.frame(ci2)
 ```
@@ -170,9 +175,8 @@ monkey_graph <- ggplot(monkeys, aes(x = Brain_Size_Species_Mean, y = MaxLongevit
   geom_line(aes(x = monkeys$Brain_Size_Species_Mean, y = lines$fit), col = "orange") +
   geom_line(aes(x = monkeys$Brain_Size_Species_Mean, y = lines$upr), col = "purple") +
   geom_line(aes(x = monkeys$Brain_Size_Species_Mean, y = lines$lwr), col = "purple") +
-  scale_colour_discrete(name = "Legend", labels = c("Fit", "Lwr", "Upr")) +
   labs(title = "logevity~brain size regression")
-monkey_graph
+monkey_graph #i cannot figure out how to add a legend
 ```
 ```{r regression for logs}
 logm <- lm(log(MaxLongevity_m) ~ log(Brain_Size_Species_Mean), data = monkeys)
@@ -207,7 +211,7 @@ log.pt.est
   - I'm struggling with the regression right now, but rn I think that the log data is more insightful because it is less spread out than the normal data. this makes it easier to see the trend line.
 
 
-##Challenges
+## Challenges
 
 1. The pi always trips me up because I'm expecting it to be the constant pi and not a variable. That plus keeping track of the variables between the homework and the module i was using for help was confusing, I think I'm going to start using little tables like the one in the _parameters_ section to keep track of this stuff  
 2. The p value test were confusing because i think the question is asking for if the alternative is set to greater or less as well as two sided which i think we could do if we split up the two sided tail arguments (i have no idea if that makes sense). if we did, would we have to do another if argument in the if argument setting the one and two prop tests apart??  
