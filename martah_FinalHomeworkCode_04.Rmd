@@ -141,6 +141,8 @@ z.prop.test(p1 = .56, n1 = 25, p2 = .7, n2 = 30, p0 = 0)
 ```
 Yes! Thank you Max and Victoria for all your help!
 
+*this looks great! -mel*
+
 ## Regression
 
 <span style="color: purple;">The dataset from Kamilar and Cooper has in it a large number of variables related to life history and body size. For this exercise, the end aim is to fit a simple linear regression model to predict longevity (MaxLongevity_m) measured in months from species’ brain size (Brain_Size_Species_Mean) measured in grams. Do the following for both longevity~brain size and log(longevity)~log(brain size):</span>
