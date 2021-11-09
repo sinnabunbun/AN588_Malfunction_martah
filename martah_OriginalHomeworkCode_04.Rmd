@@ -132,6 +132,11 @@ z.prop.test(p1 = .5, n1 = 40, p0 = .6) #i have no idea how to pick values for th
 z.prop.test(p1 = .8, n1 = 5, p0 = .6) #this should have set off my warning :/
 z.prop.test(p1 = .5, n1 = 40, p2 = .6, n2 = 35, p0 = .6)
 ```
+*Looks like you're getting NAs for your 2 sample CIs. That's because you need to expand on your CI equation to include that second sample. For example:* 
+
+lower <- (p2-p1) - qnorm(1 - ((1-conf.level)/2)) * sqrt((p1 * (1-p1)/(n1)) + (p2 * (1-p2)/n2)) 
+
+*-Mel* 
 
 ## Regression
 
