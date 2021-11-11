@@ -180,6 +180,8 @@ monkey_graph <- ggplot(monkeys, aes(x = Brain_Size_Species_Mean, y = MaxLongevit
   labs(title = "logevity~brain size regression")
 monkey_graph #i cannot figure out how to add a legend
 ```
+*One option for your legend is to just use annotate("text", label = "your equation") with the your equation using the beta values from the model summary (coefficients)*
+
 ```{r regression for logs}
 logm <- lm(log(MaxLongevity_m) ~ log(Brain_Size_Species_Mean), data = monkeys)
 summary(logm)
@@ -198,6 +200,8 @@ monkey_log_graph <- ggplot(monkeys, aes(x = log(Brain_Size_Species_Mean), y = lo
 monkey_log_graph
 ```
 
+*you still want a straight line whose slope matches that of your beta for the log model. It may help to log the variables before putting them into your model/ggplot*
+
 - <span style="color: purple;">Identify and interpret the point estimate of the slope (β1), as well as the outcome of the test associated with the hypotheses H0: β1 = 0; HA: β1 ≠ 0. Also, find a 90 percent CI for the slope (β1) parameter.</span>
 
 - <span style="color: purple;">Using your model, add lines for the 90 percent confidence and prediction interval bands on the plot and add a legend to differentiate between the lines.</span>
@@ -209,6 +213,9 @@ log.pt.est <- predict(logm, newdata = data.frame(Brain_Size_Species_Mean = 800),
     level = 0.90)  # for a single value
 log.pt.est
 ```
+
+*Use the same predict() function to find the confidence intervals, and put the upper and lower CIs and PIs into a df to plot them in ggplot*
+
 - <span style="color: purple;">Looking at your two models, which do you think is better? Why?</span>
   - I'm struggling with the regression right now, but rn I think that the log data is more insightful because it is less spread out than the normal data. this makes it easier to see the trend line.
 
